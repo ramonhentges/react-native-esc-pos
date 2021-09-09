@@ -1,4 +1,4 @@
-import { DeviceEventEmitter, NativeModules } from 'react-native';
+import { DeviceEventEmitter, NativeModules } from "react-native";
 
 const { LayoutBuilder } = NativeModules;
 
@@ -6,14 +6,12 @@ const EscPos = {
   ...NativeModules.EscPos,
   addListener(eventName, cb) {
     switch (eventName) {
-      case 'bluetoothStateChanged':
+      case "bluetoothStateChanged":
         EscPos.initBluetoothConnectionListener();
-        DeviceEventEmitter.addListener('bluetoothStateChanged', cb);
-        break;
+        return DeviceEventEmitter.addListener("bluetoothStateChanged", cb);
 
-      case 'bluetoothDeviceFound':
-        DeviceEventEmitter.addListener('bluetoothDeviceFound', cb);
-        break;
+      case "bluetoothDeviceFound":
+        return DeviceEventEmitter.addListener("bluetoothDeviceFound", cb);
 
       default:
         throw new Error(`${eventName} is not a valid event name.`);
