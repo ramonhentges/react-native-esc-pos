@@ -25,11 +25,15 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "expo-module-scripts": "^2.0.0",
     "react": "^16.5.0",
     "react-native": "^0.59.4"
   },
   "peerDependencies": {
     "react": "^16.5.0",
     "react-native": ">=0.57.0-rc.0 <1.0.x"
+  },
+  "dependencies": {
+    "@expo/config-plugins": "^3.1.0"
   }
 }
