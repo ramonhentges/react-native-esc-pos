@@ -1,20 +1,21 @@
-import {
-  AndroidConfig,
-  createRunOncePlugin,
-  withInfoPlist,
-} from "@expo/config-plugins";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_plugins_1 = require("@expo/config-plugins");
 const pkg = require("@ramonhentges/react-native-esc-pos/package.json");
-
 const BLUETOOTH = "Allow $(PRODUCT_NAME) to access bluetooth";
-
 const BLUETOOTH_ADMIN = "Allow $(PRODUCT_NAME) to access bluetooth";
-
+/**
+ * Adds `NSMicrophoneUsageDescription` and `NSSpeechRecognitionUsageDescription` to the `Info.plist`.
+ *
+ * @param props.bluetoothAdminPermission speech recognition message
+ * @param props.bluetoothPermission microphone permission message
+ * @returns
+ */
 const withIosPermissions = (
   c,
-  { bluetoothPermission, bluetoothAdminPermission } = {}
+  { bluetoothAdminPermission, bluetoothPermission } = {}
 ) => {
-  return withInfoPlist(c, (config) => {
+  return config_plugins_1.withInfoPlist(c, (config) => {
     if (bluetoothPermission !== false) {
       config.modResults.NSBluetoothUsageDescription =
         bluetoothPermission ||
@@ -31,24 +32,25 @@ const withIosPermissions = (
     return config;
   });
 };
-
 /**
  * Adds the following to the `AndroidManifest.xml`: `<uses-permission android:name="android.permission.RECORD_AUDIO" />`
  */
 const withAndroidPermissions = (config) => {
-  return AndroidConfig.Permissions.withPermissions(config, [
+  return config_plugins_1.AndroidConfig.Permissions.withPermissions(config, [
     "android.permission.BLUETOOTH",
     "android.permission.BLUETOOTH_ADMIN",
   ]);
 };
-
-const withVoice = (config, props = {}) => {
+const withEscPos = (config, props = {}) => {
   const _props = props ? props : {};
   config = withIosPermissions(config, _props);
-  if (_props.bluetoothPermission !== false) {
+  if (_props.microphonePermission !== false) {
     config = withAndroidPermissions(config);
   }
   return config;
 };
-
-export default createRunOncePlugin(withVoice, pkg.name, pkg.version);
+exports.default = config_plugins_1.createRunOncePlugin(
+  withEscPos,
+  pkg.name,
+  pkg.version
+);
