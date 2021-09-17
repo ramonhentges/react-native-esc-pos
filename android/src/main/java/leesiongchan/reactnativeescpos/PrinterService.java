@@ -1,8 +1,6 @@
 package leesiongchan.reactnativeescpos;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.ImageDecoder;
+import android.graphics.*;
 import android.util.Base64;
 import android.net.Uri;
 import android.os.Build;
@@ -117,15 +115,34 @@ public class PrinterService {
         printDesign(design);
     }
 
+    public static Bitmap toGrayscale(Bitmap bmpOriginal) {
+        int width, height;
+        height = bmpOriginal.getHeight();
+        width = bmpOriginal.getWidth();
+
+        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
+        Canvas c = new Canvas(bmpGrayscale);
+        Paint paint = new Paint();
+        ColorMatrix cm = new ColorMatrix();
+        cm.setSaturation(0);
+        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
+        paint.setColorFilter(f);
+        c.drawBitmap(bmpOriginal, 0, 0, paint);
+        return bmpGrayscale;
+    }
+
     public void printDesign(String text) throws IOException {
         ByteArrayOutputStream baos = generateDesignByteArrayOutputStream(text);
         write(baos.toByteArray());
     }
 
     public Bitmap readImage(String filePath, ReactApplicationContext reactContext) throws IOException {
-        byte[] decodedBytes = Base64.decode(filePath, 0);
-        image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-        return image;
+        byte[] decodedBytes = Base64.decode(filePath, Base64.DEFAULT);
+        BitmapFactory.Options op = new BitmapFactory.Options();
+        op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length, op);
+        Bitmap grayScaleImage = toGrayscale(image);
+        return grayScaleImage;
     }
 
     public void printImage(String filePath) throws IOException {
