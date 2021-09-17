@@ -3,6 +3,7 @@ package leesiongchan.reactnativeescpos;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
+import android.util.Base64;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -122,11 +123,8 @@ public class PrinterService {
     }
 
     public Bitmap readImage(String filePath, ReactApplicationContext reactContext) throws IOException {
-        Uri fileUri = Uri.parse(filePath);
-        Bitmap image = null;
-        BitmapFactory.Options op = new BitmapFactory.Options();
-        op.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        image = BitmapFactory.decodeFile(fileUri.getPath(), op);
+        byte[] decodedBytes = Base64.decode(filePath, 0);
+        image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
         return image;
     }
 
