@@ -397,9 +397,11 @@ public class PrinterService {
         Bitmap monoChrome = toMonochrome(grayScaleImage);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        byte[] DEFAULT_LINE_SPACE = new byte[] { 0x1b, 50 };
         
-        baos.write(LINE_SPACE_24);
         for (int y = 0; y < monoChrome.getHeight(); y += 24) {
+            baos.write(LINE_SPACE_24);
             baos.write(SELECT_BIT_IMAGE_MODE); // bit mode
             // width, low & high
             baos.write(new byte[] { (byte) (0x00ff & monoChrome.getWidth()), (byte) ((0xff00 & monoChrome.getWidth()) >> 8) });
@@ -409,6 +411,8 @@ public class PrinterService {
             }
             baos.write(CTL_LF);
         }
+
+        baos.write(DEFAULT_LINE_SPACE);
 
         return baos;
     }
