@@ -131,6 +131,17 @@ public class PrinterService {
         return bmpGrayscale;
     }
 
+    public Bitmap toMonochrome(Bitmap bitmap) {
+        Bitmap bmpMonochrome = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bmpMonochrome);
+        ColorMatrix ma = new ColorMatrix();
+        ma.setSaturation(0);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(ma));
+        canvas.drawBitmap(bitmap, 0, 0, paint);
+        return bmpMonochrome;
+    }
+
     public void printDesign(String text) throws IOException {
         ByteArrayOutputStream baos = generateDesignByteArrayOutputStream(text);
         write(baos.toByteArray());
@@ -141,8 +152,7 @@ public class PrinterService {
         BitmapFactory.Options op = new BitmapFactory.Options();
         op.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length, op);
-        Bitmap grayScaleImage = toGrayscale(image);
-        return grayScaleImage;
+        return image;
     }
 
     public void printImage(String filePath) throws IOException {
@@ -253,18 +263,18 @@ public class PrinterService {
                 bcToWrite = PrinterCommand.getBarCodeCommand(line.replaceAll(".*\\{BC\\[(.+)\\]\\}.*", "$1"),DEFAULT_BAR_CODE_FORMAT,DEFAULT_BAR_CODE_WIDTH,DEFAULT_BAR_CODE_HEIGHT,DEFAULT_BAR_CODE_FONT,DEFAULT_BAR_CODE_POSITION);
             }
 
-            String imgRegex = ".*\\{IMG\\[(.+)\\](?:\\}|:(\\d+)\\}).*";
+            String imgRegex = ".*\\{IMG\\[([A-Za-z0-9+/\\r\\n]+={0,2})\\](?:\\}|:(\\d+)\\}).*";
             Pattern imgPatter = Pattern.compile(imgRegex);
             Matcher imgMatcher = imgPatter.matcher(line);
             if (imgMatcher.find()) {
                 try {
                     int offset = DEFAULT_IMG_WIDTH_OFFSET;
-                    if (imgMatcher.group(2).length() > 0) {
-                        offset = Integer.parseInt(imgMatcher.group(1));
+                    if (imgMatcher.group(2) != null) {
+                        offset = Integer.parseInt(imgMatcher.group(2));
                     }
                     imageToWrite = generateImageByteArrayOutputStream(
                         EscPosHelper.resizeImage(
-                            readImage(line.replaceAll(".*\\{IMG\\[(.+)\\]\\}.*", "$1"), context), 
+                            readImage(imgMatcher.group(1), context), 
                             Math.max(printingWidth - Math.abs(offset), 0), 
                             DEFAULT_IMG_MAX_HEIGHT
                         )
@@ -383,16 +393,19 @@ public class PrinterService {
     }
 
     private ByteArrayOutputStream generateImageByteArrayOutputStream(Bitmap image) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Bitmap grayScaleImage = toGrayscale(image);
+        Bitmap monoChrome = toMonochrome(grayScaleImage);
 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
         baos.write(LINE_SPACE_24);
-        for (int y = 0; y < image.getHeight(); y += 24) {
+        for (int y = 0; y < monoChrome.getHeight(); y += 24) {
             baos.write(SELECT_BIT_IMAGE_MODE); // bit mode
             // width, low & high
-            baos.write(new byte[] { (byte) (0x00ff & image.getWidth()), (byte) ((0xff00 & image.getWidth()) >> 8) });
-            for (int x = 0; x < image.getWidth(); x++) {
+            baos.write(new byte[] { (byte) (0x00ff & monoChrome.getWidth()), (byte) ((0xff00 & monoChrome.getWidth()) >> 8) });
+            for (int x = 0; x < monoChrome.getWidth(); x++) {
                 // For each vertical line/slice must collect 3 bytes (24 bytes)
-                baos.write(EscPosHelper.collectImageSlice(y, x, image));
+                baos.write(EscPosHelper.collectImageSlice(y, x, monoChrome));
             }
             baos.write(CTL_LF);
         }
