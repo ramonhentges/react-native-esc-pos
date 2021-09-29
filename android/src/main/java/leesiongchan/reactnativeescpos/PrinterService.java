@@ -1,6 +1,7 @@
 package leesiongchan.reactnativeescpos;
 
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.net.Uri;
 import android.os.Build;
@@ -115,52 +116,25 @@ public class PrinterService {
         printDesign(design);
     }
 
-    public static Bitmap toGrayscale(Bitmap bmpOriginal) {
-        int width, height;
-        height = bmpOriginal.getHeight();
-        width = bmpOriginal.getWidth();
-
-        Bitmap bmpGrayscale = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-        Canvas c = new Canvas(bmpGrayscale);
-        Paint paint = new Paint();
-        ColorMatrix cm = new ColorMatrix();
-        cm.setSaturation(0);
-        ColorMatrixColorFilter f = new ColorMatrixColorFilter(cm);
-        paint.setColorFilter(f);
-        c.drawBitmap(bmpOriginal, 0, 0, paint);
-        return bmpGrayscale;
-    }
-
-    public Bitmap toMonochrome(Bitmap bitmap) {
-        Bitmap bmpMonochrome = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bmpMonochrome);
-        ColorMatrix ma = new ColorMatrix();
-        ma.setSaturation(0);
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(ma));
-        canvas.drawBitmap(bitmap, 0, 0, paint);
-        return bmpMonochrome;
-    }
-
     public void printDesign(String text) throws IOException {
         ByteArrayOutputStream baos = generateDesignByteArrayOutputStream(text);
         write(baos.toByteArray());
     }
 
-    public Bitmap readImage(String filePath, ReactApplicationContext reactContext) throws IOException {
-        byte[] decodedBytes = Base64.decode(filePath, Base64.DEFAULT);
+    public Bitmap readImage(String base64, ReactApplicationContext reactContext) throws IOException {
+        byte[] decodedBytes = Base64.decode(base64, Base64.DEFAULT);
         BitmapFactory.Options op = new BitmapFactory.Options();
         op.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap image = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length, op);
         return image;
     }
 
-    public void printImage(String filePath) throws IOException {
-        printImage(readImage(filePath, context));
+    public void printImage(String base64) throws IOException {
+        printImage(readImage(base64, context));
     }
 
-    public void printImage(String filePath, int widthOffset) throws IOException {
-        printImage(readImage(filePath, context), widthOffset);
+    public void printImage(String base64, int widthOffset) throws IOException {
+        printImage(readImage(base64, context), widthOffset);
     }
 
     public void printImage(Bitmap image) throws IOException {
@@ -390,21 +364,18 @@ public class PrinterService {
     }
 
     private ByteArrayOutputStream generateImageByteArrayOutputStream(Bitmap image) throws IOException {
-        Bitmap grayScaleImage = toGrayscale(image);
-        Bitmap monoChrome = toMonochrome(grayScaleImage);
-
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         byte[] DEFAULT_LINE_SPACE = new byte[] { 0x1b, 50 };
         
-        for (int y = 0; y < monoChrome.getHeight(); y += 24) {
+        for (int y = 0; y < image.getHeight(); y += 24) {
             baos.write(LINE_SPACE_24);
             baos.write(SELECT_BIT_IMAGE_MODE); // bit mode
             // width, low & high
-            baos.write(new byte[] { (byte) (0x00ff & monoChrome.getWidth()), (byte) ((0xff00 & monoChrome.getWidth()) >> 8) });
-            for (int x = 0; x < monoChrome.getWidth(); x++) {
+            baos.write(new byte[] { (byte) (0x00ff & image.getWidth()), (byte) ((0xff00 & image.getWidth()) >> 8) });
+            for (int x = 0; x < image.getWidth(); x++) {
                 // For each vertical line/slice must collect 3 bytes (24 bytes)
-                baos.write(EscPosHelper.collectImageSlice(y, x, monoChrome));
+                baos.write(EscPosHelper.collectImageSlice(y, x, image));
             }
             baos.write(CTL_LF);
         }

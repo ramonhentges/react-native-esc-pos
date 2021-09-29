@@ -134,9 +134,9 @@ public class EscPosModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void printImage(String filePath, Promise promise) {
+    public void printImage(String base64, Promise promise) {
         try {
-            printerService.printImage(filePath);
+            printerService.printImage(base64);
             promise.resolve(true);
         } catch (IOException e) {
             promise.reject(e);
@@ -144,9 +144,9 @@ public class EscPosModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void printImageWithOffset(String filePath, int widthOffet, Promise promise) {
+    public void printImageWithOffset(String base64, int widthOffet, Promise promise) {
         try {
-            printerService.printImage(filePath, widthOffet);
+            printerService.printImage(base64, widthOffet);
             promise.resolve(true);
         } catch (IOException e) {
             promise.reject(e);
