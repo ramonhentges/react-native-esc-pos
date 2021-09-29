@@ -323,16 +323,13 @@ public class PrinterService {
             }
             if (h1) {
                 baos.write(TXT_4SQUARE_NEW);
-                baos.write(LINE_SPACE_88);
                 line = line.replace("{H1}", "");
                 charsOnLine = charsOnLine / 2;
             } else if (h2) {
                 baos.write(TXT_2HEIGHT_NEW);
-                baos.write(LINE_SPACE_88);
                 line = line.replace("{H2}", "");
             } else if (h3) {
                 baos.write(TXT_2WIDTH_NEW);
-                baos.write(LINE_SPACE_68);
                 line = line.replace("{H3}", "");
                 charsOnLine = charsOnLine / 2;
             }
@@ -382,7 +379,7 @@ public class PrinterService {
                 baos.write(TXT_NORMAL_NEW);
             }
             if (lsm || lsl) {
-                baos.write(LINE_SPACE_24);
+                baos.write(DEFAULT_LINE_SPACE);
             }
             if (ct || rt) {
                 baos.write(TXT_ALIGN_LT);
