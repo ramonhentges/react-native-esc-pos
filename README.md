@@ -71,7 +71,7 @@ D0004           {<>}           Table #: A1
 
 {QR[Where are the aliens?]}
 {BC[Your barcode here]}
-{IMG[file://image/path/file.png]}
+{IMG[base64Image]}
 `;
 
 async function testPrinter() {
@@ -91,10 +91,10 @@ async function testPrinter() {
     await EscPos.printSample();
     // Cut half!
     await EscPos.cutPart();
-    // You can also print image! eg. "file:///longpath/xxx.jpg"
+    // You can also print image! eg. "base64Image" without header "data:image/png;base64,"
     await EscPos.printImage(file.uri);
-    // You can also print image with a specific width offset (scale down image by offset pixels)! eg. "file:///longpath/xxx.jpg"
-    await EscPos.printImageWithOffset(file.uri, offset);
+    // You can also print image with a specific width offset (scale down image by offset pixels)! eg. "base64Image"
+    await EscPos.printImageWithOffset(base64Image, offset);
     // Print your design!
     await EscPos.printDesign(design);
     // Print QR Code, you can specify the size
@@ -180,8 +180,8 @@ EscPos.addListener("bluetoothStateChanged", (event) => {
 | {RP:?:?}   | Repeat text. Eg. {RP:5:a} will output "aaaaa".                                 |
 | {BC[?]}    | Print barcode.                                                                 |
 | {QR[?]}    | Print QR code.                                                                 |
-| {IMG[?]}   | Print image from a path.                                                       |
-| {IMG[?]:?} | Print image scaled down to make space for a width offset. Eg. {IMG[<path>]:32} |
+| {IMG[?]}   | Print image from base64.                                                       |
+| {IMG[?]:?} | Print image scaled down to make space for a width offset. Eg. {IMG[base64]:32} |
 | {<>}       | Left-right text separation.                                                    |
 | {---}      | Create a "---" separator.                                                      |
 | {===}      | Create a "===" separator.                                                      |
