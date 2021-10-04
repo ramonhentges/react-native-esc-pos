@@ -56,7 +56,7 @@ Add following permissions into `AndroidManifest.xml`
 ## Usage
 
 ```javascript
-import EscPos from "@leesiongchan/react-native-esc-pos";
+import EscPos, { BARCODES, FONTPOSITION, FONTS } from '@ramonhentges/react-native-esc-pos';
 
 const design = `
 D0004           {<>}           Table #: A1
@@ -92,7 +92,7 @@ async function testPrinter() {
     // Cut half!
     await EscPos.cutPart();
     // You can also print image! eg. "base64Image" without header "data:image/png;base64,"
-    await EscPos.printImage(file.uri);
+    await EscPos.printImage(base64Image);
     // You can also print image with a specific width offset (scale down image by offset pixels)! eg. "base64Image"
     await EscPos.printImageWithOffset(base64Image, offset);
     // Print your design!
@@ -106,7 +106,7 @@ async function testPrinter() {
     // height: 0-255
     // font: 0=FontA; 1=FontB
     // fontPosition: 0=none; 1=top; 2=bottom; 3=top-bottom
-    await EscPos.printBarcode("Your barcode here", 73, 3, 100, 0, 2);
+    await EscPos.printBarcode("Your barcode here", BARCODES.CODE128, 3, 100, FONTS.FontA, FONTPOSITION.top);
     // Cut full!
     await EscPos.cutFull();
     // Beep!
@@ -136,25 +136,29 @@ EscPos.stopScan();
 ### Events
 
 ```javascript
-EscPos.addListener("bluetoothDeviceFound", (event) => {
+const listner = EscPos.addListener("bluetoothDeviceFound", (event) => {
   if (event.state === EscPos.BLUETOOTH_DEVICE_FOUND) {
     console.log("Device Found!");
     console.log("Device Name : " + event.deviceInfo.name);
     console.log("Device MAC Address : " + event.deviceInfo.macAddress);
   }
 });
+
+listner.remove();
 ```
 
 To listen to bluetooth state changes:
 
 ```javascript
-EscPos.addListener("bluetoothStateChanged", (event) => {
+const listner = EscPos.addListener("bluetoothStateChanged", (event) => {
   if (event.state === EscPos.BLUETOOTH_CONNECTED) {
     console.log("Device Connected!");
     console.log("Device Name : " + event.deviceInfo.name);
     console.log("Device MAC Address : " + event.deviceInfo.macAddress);
   }
 });
+
+listner.remove();
 ```
 
 ### Constants
