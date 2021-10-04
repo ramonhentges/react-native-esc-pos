@@ -24,8 +24,32 @@ const EscPos = {
     } else {
       return NativeModules.EscPos.connectNetworkPrinter(address, port);
     }
-  },
+  }
 };
 
-export { EscPos, LayoutBuilder };
+const FONTPOSITION = Object.freeze({
+  'none': 0,
+  'top': 1,
+  'bottom': 2,
+  'top-bottom': 3
+})
+
+const FONTS = Object.freeze({
+  FontA: 0,
+  FontB: 1
+})
+
+const BARCODES = Object.freeze({
+  'UPC-A': 65,
+  'UPC-E': 66,
+  'EAN13': 67,
+  'EAN8': 68,
+  'CODE39': 69,
+  'ITF': 70,
+  'CODABAR': 71,
+  'CODE93': 72,
+  'CODE128': 73
+})
+
+export { EscPos, LayoutBuilder, FONTPOSITION, FONTS, BARCODES };
 export default EscPos;
