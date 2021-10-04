@@ -103,7 +103,7 @@ public class EscPosModule extends ReactContextBaseJavaModule {
         }
     }
 
-    @ReactMethod
+    /*@ReactMethod
     public void printBarcode(String code, String bc, int width, int height, String pos, String font, Promise promise) {
         try {
             printerService.printBarcode(code, bc, width, height, pos, font);
@@ -111,7 +111,7 @@ public class EscPosModule extends ReactContextBaseJavaModule {
         } catch (BarcodeSizeError e) {
             promise.reject(e);
         }
-    }
+    }*/
 
     @ReactMethod
     public void printBarcode(String str, int nType, int nWidthX, int nHeight, int nHriFontType, int nHriFontPosition, Promise promise) {
